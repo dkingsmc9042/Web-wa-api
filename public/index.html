@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WA AI Gateway Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased">
+
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-950 border-r border-slate-800 p-6 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center gap-3 mb-8">
+          <i class="fa-brands fa-whatsapp text-emerald-400 text-3xl"></i>
+          <span class="font-bold text-xl tracking-wide">WA<span class="text-emerald-400">API</span></span>
+        </div>
+        <nav class="space-y-2">
+          <a href="#" class="flex items-center gap-3 px-4 py-2.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg font-semibold text-sm">
+            <i class="fa-solid fa-mobile-screen"></i> Status Perangkat
+          </a>
+        </nav>
+      </div>
+      <div class="text-xs text-slate-500">Vercel UI + VPS Backend Engine</div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8">
+      <h1 class="text-2xl font-bold mb-6">Device Management Dashboard</h1>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        
+        <!-- Status & Connection Container -->
+        <div class="bg-slate-950 border border-slate-800 p-6 rounded-xl">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="font-bold text-lg flex items-center gap-2">
+              <i class="fa-solid fa-link text-emerald-400"></i> Status Perangkat
+            </h2>
+            <div id="status-badge" class="flex items-center gap-2">
+              <span class="w-3 h-3 bg-slate-600 rounded-full animate-pulse"></span>
+              <span class="text-xs text-slate-400">Memeriksa...</span>
+            </div>
+          </div>
+
+          <div class="flex border-b border-slate-800 mb-4">
+            <button id="btn-qr" onclick="switchTab('qr')" class="py-2 px-4 text-sm font-semibold text-emerald-400 border-b-2 border-emerald-400">Scan QR Code</button>
+            <button id="btn-pairing" onclick="switchTab('pairing')" class="py-2 px-4 text-sm font-semibold text-slate-400">Pairing Code</button>
+          </div>
+
+          <!-- Tab 1: QR -->
+          <div id="tab-qr" class="border border-slate-800 bg-slate-900 rounded-lg p-6 text-center flex flex-col items-center justify-center min-h-[220px]">
+            <img id="qr-image" class="w-48 h-48 hidden rounded border border-slate-700">
+            <p id="qr-placeholder" class="text-sm text-slate-500">Memuat QR Code...</p>
+          </div>
+
+          <!-- Tab 2: Pairing Code -->
+          <div id="tab-pairing" class="hidden border border-slate-800 bg-slate-900 rounded-lg p-6 min-h-[220px]">
+            <form id="pairing-form" class="space-y-3">
+              <label class="block text-xs text-slate-400">Nomor WhatsApp (62...)</label>
+              <div class="flex gap-2">
+                <input type="text" id="phone-number" placeholder="628123456789" required class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+                <button type="submit" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-4 py-2 rounded-lg text-sm">Minta Kode</button>
+              </div>
+            </form>
+            <div id="pairing-code-display" class="mt-6 text-center hidden">
+              <span class="text-xs text-slate-400 block mb-1">Kode Tautan Anda:</span>
+              <div id="code-box" class="text-3xl font-mono font-bold tracking-wider text-emerald-400 bg-slate-950 border border-emerald-500/30 py-3 px-4 rounded-lg inline-block">---- ----</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tes Outbound Form -->
+        <div class="bg-slate-950 border border-slate-800 p-6 rounded-xl">
+          <h2 class="font-bold text-lg mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-paper-plane text-emerald-400"></i> Tes Outbound API
+          </h2>
+          <form id="send-form" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-400 mb-1">Nomor Tujuan</label>
+              <input type="text" id="target" placeholder="6281234567890" required class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-400 mb-1">Pesan</label>
+              <textarea id="message" rows="3" placeholder="Halo dari Vercel UI!" required class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500"></textarea>
+            </div>
+            <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-4 py-2 rounded-lg text-sm">Kirim Pesan</button>
+          </form>
+          <div id="alert" class="mt-4 p-3 text-xs rounded hidden"></div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const API_URL = '/api';
+
+    function switchTab(tab) {
+      document.getElementById('tab-qr').classList.toggle('hidden', tab !== 'qr');
+      document.getElementById('tab-pairing').classList.toggle('hidden', tab !== 'pairing');
+      document.getElementById('btn-qr').className = tab === 'qr' ? 'py-2 px-4 text-sm font-semibold text-emerald-400 border-b-2 border-emerald-400' : 'py-2 px-4 text-sm font-semibold text-slate-400';
+      document.getElementById('btn-pairing').className = tab === 'pairing' ? 'py-2 px-4 text-sm font-semibold text-emerald-400 border-b-2 border-emerald-400' : 'py-2 px-4 text-sm font-semibold text-slate-400';
+    }
+
+    async function checkStatus() {
+      try {
+        const res = await fetch(`${API_URL}/device/status`);
+        const { data } = await res.json();
+        
+        const badge = document.getElementById('status-badge');
+        const qrImg = document.getElementById('qr-image');
+        const placeholder = document.getElementById('qr-placeholder');
+
+        if (data.status === 'connected') {
+          badge.innerHTML = `<span class="w-3 h-3 bg-emerald-500 rounded-full"></span><span class="text-xs font-semibold text-emerald-400">Terhubung</span>`;
+          qrImg.classList.add('hidden');
+          placeholder.innerText = '✅ WA Gateway Engine Ready (VPS Connected)';
+        } else if (data.qr) {
+          badge.innerHTML = `<span class="w-3 h-3 bg-amber-500 rounded-full animate-pulse"></span><span class="text-xs text-amber-400">Scan QR</span>`;
+          qrImg.src = data.qr;
+          qrImg.classList.remove('hidden');
+          placeholder.classList.add('hidden');
+        }
+      } catch (err) { console.error(err); }
+    }
+
+    document.getElementById('pairing-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const phoneNumber = document.getElementById('phone-number').value;
+      const displayBox = document.getElementById('pairing-code-display');
+      const codeBox = document.getElementById('code-box');
+      codeBox.innerText = '...';
+      displayBox.classList.remove('hidden');
+
+      const res = await fetch(`${API_URL}/device/pairing-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phoneNumber })
+      });
+      const data = await res.json();
+      if (data.success) codeBox.innerText = data.pairingCode;
+    });
+
+    document.getElementById('send-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const alertBox = document.getElementById('alert');
+      const res = await fetch(`${API_URL}/send-message`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ target: document.getElementById('target').value, message: document.getElementById('message').value })
+      });
+      const data = await res.json();
+      alertBox.classList.remove('hidden');
+      alertBox.className = data.success ? 'mt-4 p-3 text-xs rounded bg-emerald-500/10 text-emerald-400' : 'mt-4 p-3 text-xs rounded bg-red-500/10 text-red-400';
+      alertBox.innerText = data.message || 'Gagal mengirim pesan';
+    });
+
+    setInterval(checkStatus, 3000);
+    checkStatus();
+  </script>
+</body>
+</html>
