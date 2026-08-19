@@ -3,81 +3,132 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Foonte Style - Device Management</title>
+  <title>Fonnte Style - WA Gateway Management</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    /* Custom Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .hover-scale {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hover-scale:hover {
+      transform: translateY(-2px);
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800 font-sans antialiased min-h-screen">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen pb-12">
 
   <!-- Top Navbar -->
-  <header class="bg-white border-b border-gray-200 sticky top-0 z-30">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <div class="bg-emerald-500 text-white p-2 rounded-lg font-bold text-xl flex items-center justify-center w-10 h-10">
+        <div class="bg-emerald-500 text-white p-2 rounded-xl font-bold text-xl flex items-center justify-center w-10 h-10 shadow-md shadow-emerald-500/20">
           <i class="fa-brands fa-whatsapp"></i>
         </div>
         <div>
-          <h1 class="font-bold text-lg leading-tight text-gray-900">FONNTE <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-semibold">CLONE</span></h1>
-          <p class="text-xs text-gray-500">WhatsApp API Gateway Management</p>
+          <h1 class="font-extrabold text-base sm:text-lg leading-tight text-slate-900 tracking-tight">FONNTE <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ml-1">GATEWAY</span></h1>
+          <p class="text-xs text-slate-500">WhatsApp API & Management Console</p>
         </div>
       </div>
-      <button onclick="fetchDevices()" class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 border border-emerald-200 transition">
-        <i class="fa-solid fa-rotate"></i> Refresh
+      
+      <button onclick="fetchDevices()" class="bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-600 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 border border-slate-200 hover:border-emerald-200 transition">
+        <i class="fa-solid fa-rotate text-xs"></i> <span class="hidden sm:inline">Refresh Status</span>
       </button>
     </div>
   </header>
 
-  <main class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6 animate-fade-in">
 
-    <!-- Action Header -->
-    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-      <div>
-        <h2 class="font-bold text-gray-800 text-lg">Device List</h2>
-        <p class="text-xs text-gray-500">Kelola koneksi nomor WhatsApp, Webhook, dan API Token Anda.</p>
+    <!-- Section 1: API Key / Token Card (Dedicated Box) -->
+    <div class="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-5 rounded-2xl shadow-lg border border-slate-700 relative overflow-hidden">
+      <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl text-emerald-400">
+        <i class="fa-solid fa-key"></i>
       </div>
-      <button onclick="openConnectModal()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-4 py-2 rounded-lg flex items-center justify-center gap-2 shadow-sm transition">
-        <i class="fa-solid fa-plus"></i> Tambah / Connect Device
+
+      <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">API Token</span>
+            <span id="token-status-badge" class="text-[11px] text-slate-400">Loading...</span>
+          </div>
+          <h2 class="text-lg font-bold">Your Device API Key</h2>
+          <p class="text-xs text-slate-400">Gunakan key ini di header <code class="text-emerald-300 font-mono">x-api-key</code> saat memanggil REST API.</p>
+        </div>
+
+        <!-- Token Input Display -->
+        <div class="flex items-center gap-2 bg-slate-950/80 border border-slate-700/80 p-2 rounded-xl w-full md:w-auto">
+          <input type="password" id="api-key-input" value="Fetching Token..." readonly class="bg-transparent font-mono text-sm text-emerald-400 px-2 outline-none w-full md:w-64 tracking-wider select-all">
+          
+          <!-- Toggle Visibility -->
+          <button onclick="toggleKeyVisibility()" class="p-2 text-slate-400 hover:text-white transition" title="Show/Hide Key">
+            <i id="eye-icon" class="fa-regular fa-eye"></i>
+          </button>
+          
+          <!-- Copy Button -->
+          <button onclick="copyApiKey()" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition shadow-sm">
+            <i class="fa-regular fa-copy"></i> Copy
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Action Header & Table -->
+    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div>
+        <h2 class="font-bold text-slate-800 text-base sm:text-lg">Connected Devices</h2>
+        <p class="text-xs text-slate-500">Kelola status koneksi nomor WhatsApp dan Webhook Anda.</p>
+      </div>
+      <button onclick="openConnectModal()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-sm shadow-emerald-600/20 transition hover-scale">
+        <i class="fa-solid fa-plus"></i> Connect Device / Scan QR
       </button>
     </div>
 
     <!-- Device List Table -->
-    <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+    <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse text-xs sm:text-sm">
           <thead>
-            <tr class="bg-gray-50 text-gray-600 border-b border-gray-200 font-semibold uppercase tracking-wider text-[11px]">
-              <th class="p-3 sm:p-4">Name / ID</th>
-              <th class="p-3 sm:p-4">Device Status</th>
-              <th class="p-3 sm:p-4">API Token</th>
-              <th class="p-3 sm:p-4">Webhook URL</th>
-              <th class="p-3 sm:p-4 text-center">Action</th>
+            <tr class="bg-slate-50 text-slate-500 border-b border-slate-200 font-bold uppercase tracking-wider text-[11px]">
+              <th class="p-4">Device ID</th>
+              <th class="p-4">Status</th>
+              <th class="p-4">Webhook Target</th>
+              <th class="p-4 text-center">Action</th>
             </tr>
           </thead>
-          <tbody id="device-table-body" class="divide-y divide-gray-100">
-            <tr>
-              <td class="p-3 sm:p-4 font-medium text-gray-900">
-                <div class="flex items-center gap-2">
-                  <i class="fa-solid fa-mobile-screen text-gray-400"></i>
+          <tbody class="divide-y divide-slate-100">
+            <tr class="hover:bg-slate-50/50 transition">
+              <td class="p-4 font-bold text-slate-900">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                    <i class="fa-solid fa-mobile-screen"></i>
+                  </div>
                   <span>Main Device</span>
                 </div>
               </td>
-              <td class="p-3 sm:p-4">
-                <span id="device-status-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                  <span class="w-2 h-2 rounded-full bg-gray-400"></span> Memeriksa...
+              <td class="p-4">
+                <span id="device-status-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">
+                  <span class="w-2 h-2 rounded-full bg-slate-400 animate-pulse"></span> Memeriksa...
                 </span>
               </td>
-              <td class="p-3 sm:p-4" id="device-token-container">
-                <span class="text-xs text-gray-400 font-mono">Connect WA First</span>
+              <td class="p-4 max-w-[140px] sm:max-w-xs truncate text-slate-500 font-mono text-xs" id="device-webhook-text">
+                Not configured
               </td>
-              <td class="p-3 sm:p-4 max-w-[150px] sm:max-w-xs truncate text-gray-500 font-mono text-xs" id="device-webhook-text">
-                Not set
-              </td>
-              <td class="p-3 sm:p-4">
+              <td class="p-4">
                 <div class="flex items-center justify-center gap-2">
-                  <button onclick="openConnectModal()" class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 border border-blue-200">
+                  <button onclick="openConnectModal()" class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-blue-200 transition">
                     <i class="fa-solid fa-qrcode"></i> Connect
                   </button>
-                  <button onclick="openWebhookModal()" class="bg-purple-50 text-purple-600 hover:bg-purple-100 px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 border border-purple-200">
+                  <button onclick="openWebhookModal()" class="bg-purple-50 text-purple-600 hover:bg-purple-100 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-purple-200 transition">
                     <i class="fa-solid fa-code"></i> Webhook
                   </button>
                 </div>
@@ -88,65 +139,69 @@
       </div>
     </div>
 
-    <!-- Outbound Message Test Form -->
-    <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm max-w-2xl mx-auto">
-      <h3 class="font-bold text-gray-800 mb-1 flex items-center gap-2">
-        <i class="fa-solid fa-paper-plane text-emerald-600"></i> Single Message Test
+    <!-- Section 3: Single Message Outbound Test -->
+    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-2xl mx-auto">
+      <h3 class="font-bold text-slate-800 text-base mb-1 flex items-center gap-2">
+        <i class="fa-solid fa-paper-plane text-emerald-600"></i> Outbound Message Tester
       </h3>
-      <p class="text-xs text-gray-500 mb-4">Uji coba pengiriman pesan otomatis API langsung ke nomor tujuan.</p>
+      <p class="text-xs text-slate-500 mb-5">Tes pengiriman pesan otomatis secara langsung melalui REST API Gateway.</p>
 
-      <form id="send-form" class="space-y-3">
+      <form id="send-form" class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Target Number</label>
-          <input type="text" id="target" placeholder="628123456789" required class="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Target Number</label>
+          <input type="text" id="target" placeholder="628123456789" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none transition">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Message</label>
-          <textarea id="message" rows="3" placeholder="Halo, ini tes pesan dari Fonnte Clone!" required class="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Message Body</label>
+          <textarea id="message" rows="3" placeholder="Halo, ini tes pesan otomatis dari Fonnte Gateway!" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none transition"></textarea>
         </div>
-        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded-lg text-sm transition">
+        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg text-sm shadow-sm shadow-emerald-600/20 transition hover-scale">
           Send Message
         </button>
       </form>
-      <div id="alert" class="mt-3 p-3 text-xs rounded-lg hidden"></div>
+      <div id="alert" class="mt-4 p-3.5 text-xs rounded-xl hidden animate-fade-in"></div>
     </div>
 
   </main>
 
   <!-- MODAL 1: CONNECT DEVICE -->
-  <div id="connect-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden">
-      <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-        <h3 class="font-bold text-gray-800 text-sm">Connect WhatsApp Device</h3>
-        <button onclick="closeModal('connect-modal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+  <div id="connect-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-in">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100">
+      <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+          <i class="fa-brands fa-whatsapp text-emerald-500 text-lg"></i> Connect WhatsApp
+        </h3>
+        <button onclick="closeModal('connect-modal')" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
       
       <div class="p-5">
-        <div class="flex border-b border-gray-200 mb-4">
+        <div class="flex border-b border-slate-200 mb-4">
           <button id="btn-tab-qr" onclick="switchModalTab('qr')" class="flex-1 py-2 text-xs font-bold text-emerald-600 border-b-2 border-emerald-600">Scan QR Code</button>
-          <button id="btn-tab-pairing" onclick="switchModalTab('pairing')" class="flex-1 py-2 text-xs font-bold text-gray-400">Pairing Code</button>
+          <button id="btn-tab-pairing" onclick="switchModalTab('pairing')" class="flex-1 py-2 text-xs font-bold text-slate-400">Pairing Code</button>
         </div>
 
+        <!-- Tab QR -->
         <div id="tab-modal-qr" class="text-center py-4 flex flex-col items-center justify-center">
-          <div class="border border-gray-200 p-2 rounded-lg inline-block bg-gray-50">
-            <img id="qr-image" class="w-52 h-52 hidden">
-            <div id="qr-placeholder" class="w-52 h-52 flex items-center justify-center text-xs text-gray-400">Memuat QR Code...</div>
+          <div class="border border-slate-200 p-2.5 rounded-xl inline-block bg-slate-50 shadow-inner">
+            <img id="qr-image" class="w-52 h-52 hidden rounded-lg">
+            <div id="qr-placeholder" class="w-52 h-52 flex items-center justify-center text-xs text-slate-400 font-medium">Memuat QR Code...</div>
           </div>
-          <p class="text-xs text-gray-500 mt-3">Buka WA di HP > Perangkat Tertaut > Tautkan Perangkat</p>
+          <p class="text-xs text-slate-500 mt-4">Buka WhatsApp HP > Perangkat Tertaut > Tautkan Perangkat</p>
         </div>
 
+        <!-- Tab Pairing -->
         <div id="tab-modal-pairing" class="hidden py-2 space-y-3">
           <form id="pairing-form" class="space-y-2">
-            <label class="block text-xs text-gray-600 font-medium">Nomor WA (Format 62...)</label>
+            <label class="block text-xs text-slate-600 font-medium">Nomor WA (Format 62...)</label>
             <div class="flex gap-2">
-              <input type="text" id="phone-number" placeholder="628123456789" required class="flex-1 bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
-              <button type="submit" class="bg-emerald-600 text-white font-semibold px-3 py-2 rounded-lg text-xs hover:bg-emerald-700">Minta Kode</button>
+              <input type="text" id="phone-number" placeholder="628123456789" required class="flex-1 bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
+              <button type="submit" class="bg-emerald-600 text-white font-semibold px-4 py-2 rounded-lg text-xs hover:bg-emerald-700 transition">Minta Kode</button>
             </div>
           </form>
 
           <div id="pairing-code-display" class="mt-4 text-center hidden">
-            <span class="text-xs text-gray-500 block mb-1">Kode Tautan WhatsApp Anda:</span>
-            <div id="code-box" class="text-2xl font-mono font-bold text-emerald-600 tracking-wider bg-emerald-50 border border-emerald-200 py-2 rounded-lg">---- ----</div>
+            <span class="text-xs text-slate-500 block mb-1">Kode Tautan WhatsApp Anda:</span>
+            <div id="code-box" class="text-2xl font-mono font-bold text-emerald-600 tracking-wider bg-emerald-50 border border-emerald-200 py-2.5 rounded-xl">---- ----</div>
           </div>
         </div>
       </div>
@@ -154,18 +209,20 @@
   </div>
 
   <!-- MODAL 2: WEBHOOK SETTING -->
-  <div id="webhook-modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden">
-      <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-        <h3 class="font-bold text-gray-800 text-sm">Webhook Setup</h3>
-        <button onclick="closeModal('webhook-modal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+  <div id="webhook-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-in">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100">
+      <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+          <i class="fa-solid fa-code text-purple-600"></i> Webhook Configuration
+        </h3>
+        <button onclick="closeModal('webhook-modal')" class="text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
-      <form id="webhook-form" class="p-5 space-y-3">
+      <form id="webhook-form" class="p-5 space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Webhook URL</label>
-          <input type="url" id="webhook-url-input" placeholder="https://domainanda.com/api/webhook" required class="w-full bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          <label class="block text-xs font-bold text-slate-700 mb-1">Callback Webhook URL</label>
+          <input type="url" id="webhook-url-input" placeholder="https://domainanda.com/api/webhook" required class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3.5 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
         </div>
-        <button type="submit" class="w-full bg-emerald-600 text-white font-semibold py-2 rounded-lg text-xs hover:bg-emerald-700">Simpan Webhook</button>
+        <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-lg text-xs hover:bg-emerald-700 transition shadow-sm">Simpan Webhook</button>
       </form>
     </div>
   </div>
@@ -180,15 +237,35 @@
     function switchModalTab(tab) {
       document.getElementById('tab-modal-qr').classList.toggle('hidden', tab !== 'qr');
       document.getElementById('tab-modal-pairing').classList.toggle('hidden', tab !== 'pairing');
-      document.getElementById('btn-tab-qr').className = tab === 'qr' ? 'flex-1 py-2 text-xs font-bold text-emerald-600 border-b-2 border-emerald-600' : 'flex-1 py-2 text-xs font-bold text-gray-400';
-      document.getElementById('btn-tab-pairing').className = tab === 'pairing' ? 'flex-1 py-2 text-xs font-bold text-emerald-600 border-b-2 border-emerald-600' : 'flex-1 py-2 text-xs font-bold text-gray-400';
+      document.getElementById('btn-tab-qr').className = tab === 'qr' ? 'flex-1 py-2 text-xs font-bold text-emerald-600 border-b-2 border-emerald-600' : 'flex-1 py-2 text-xs font-bold text-slate-400';
+      document.getElementById('btn-tab-pairing').className = tab === 'pairing' ? 'flex-1 py-2 text-xs font-bold text-emerald-600 border-b-2 border-emerald-600' : 'flex-1 py-2 text-xs font-bold text-slate-400';
     }
 
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text);
-      alert('API Key berhasil disalin ke clipboard!');
+    // Toggle API Key Visibility (Show/Hide)
+    function toggleKeyVisibility() {
+      const input = document.getElementById('api-key-input');
+      const icon = document.getElementById('eye-icon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fa-regular fa-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'fa-regular fa-eye';
+      }
     }
 
+    // Copy API Key
+    function copyApiKey() {
+      const input = document.getElementById('api-key-input');
+      if (!input.value || input.value.includes('Fetching') || input.value.includes('Connect')) {
+        alert('API Key belum tersedia. Silakan hubungkan WhatsApp terlebih dahulu.');
+        return;
+      }
+      navigator.clipboard.writeText(input.value);
+      alert('✅ API Key berhasil disalin ke clipboard!');
+    }
+
+    // Fetch Device Data from Backend
     async function fetchDevices() {
       try {
         const res = await fetch(`${API_URL}/device/status`);
@@ -198,38 +275,37 @@
         const qrImg = document.getElementById('qr-image');
         const placeholder = document.getElementById('qr-placeholder');
         const webhookText = document.getElementById('device-webhook-text');
-        const tokenContainer = document.getElementById('device-token-container');
+        const keyInput = document.getElementById('api-key-input');
+        const tokenBadge = document.getElementById('token-status-badge');
 
         if (data.webhookUrl) webhookText.innerText = data.webhookUrl;
 
-        // Render API Key ke Dashboard UI
+        // Display API Token
         if (data.apiKey) {
-          tokenContainer.innerHTML = `
-            <div class="inline-flex items-center gap-2 font-mono text-xs bg-gray-100 px-2 py-1 rounded border border-gray-200 text-emerald-700 font-bold">
-              <span class="truncate max-w-[110px] sm:max-w-[140px]">${data.apiKey}</span>
-              <button onclick="copyToClipboard('${data.apiKey}')" class="text-gray-400 hover:text-emerald-600 transition" title="Copy Token">
-                <i class="fa-regular fa-copy"></i>
-              </button>
-            </div>
-          `;
+          keyInput.value = data.apiKey;
+          tokenBadge.innerText = '• Active';
+          tokenBadge.className = 'text-[11px] text-emerald-400 font-semibold';
         } else {
-          tokenContainer.innerHTML = `<span class="text-xs text-gray-400 font-mono">Connect WA First</span>`;
+          keyInput.value = 'Connect WA First';
+          tokenBadge.innerText = '• Inactive';
+          tokenBadge.className = 'text-[11px] text-slate-400';
         }
 
+        // Display Device Connection Status
         if (data.status === 'connected') {
-          badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700';
+          badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700';
           badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Connected`;
           qrImg.classList.add('hidden');
           placeholder.classList.remove('hidden');
-          placeholder.innerText = '✅ Device Ready';
+          placeholder.innerText = '✅ Perangkat Terhubung';
         } else if (data.qr) {
-          badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700';
+          badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700';
           badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span> Need Scan`;
           qrImg.src = data.qr;
           qrImg.classList.remove('hidden');
           placeholder.classList.add('hidden');
         } else {
-          badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700';
+          badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700';
           badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500"></span> Disconnected`;
           qrImg.classList.add('hidden');
           placeholder.classList.remove('hidden');
@@ -238,6 +314,7 @@
       } catch (err) { console.error('Status Error:', err); }
     }
 
+    // Handlers
     document.getElementById('pairing-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const phoneNumber = document.getElementById('phone-number').value;
@@ -270,14 +347,19 @@
     document.getElementById('send-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const alertBox = document.getElementById('alert');
+      const apiKey = document.getElementById('api-key-input').value;
+
       const res = await fetch(`${API_URL}/send-message`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey 
+        },
         body: JSON.stringify({ target: document.getElementById('target').value, message: document.getElementById('message').value })
       });
       const data = await res.json();
       alertBox.classList.remove('hidden');
-      alertBox.className = data.success ? 'mt-3 p-3 text-xs rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200' : 'mt-3 p-3 text-xs rounded-lg bg-red-50 text-red-700 border border-red-200';
+      alertBox.className = data.success ? 'mt-4 p-3.5 text-xs rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium' : 'mt-4 p-3.5 text-xs rounded-xl bg-red-50 text-red-700 border border-red-200 font-medium';
       alertBox.innerText = data.message || 'Gagal mengirim pesan';
     });
 
